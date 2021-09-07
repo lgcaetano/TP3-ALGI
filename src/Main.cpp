@@ -22,7 +22,7 @@ int main(int argc, char** argv){
     inputFile >> numVertices;  
     inputFile >> numArestas;  
  
-    int i, verticeOrigem, verticeDestino;           
+    int i, verticeOrigem, verticeDestino;               
 
     Grafo grafoVila(numVertices);
 

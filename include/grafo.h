@@ -261,53 +261,63 @@ int Grafo::findAugmentingPath(vector<vector<int>> &currentMatching, vector<int> 
         alteredBfsTree[0].push_back(freeVertices[i]);
 
         do{
-            neighbours = getNeighbouringVertices(filaDeVertices.front());
 
             treeLevel++;
 
-            nextEdgeShouldBeMatched = !nextEdgeShouldBeMatched;
-
             alteredBfsTree.push_back(vector<int>(0, 0));
 
-            for(j = 0; j < (int)neighbours.size(); j++){
-                
-                if(nextEdgeShouldBeMatched){
+            while(!filaSecundaria.empty()){
+                filaDeVertices.push(filaSecundaria.front());
+                filaSecundaria.pop();
+            }
 
-                    currentEdge[0] = filaDeVertices.front();
-                    currentEdge[1] = neighbours[j];
-
-                    if(matrixContainsPair(currentMatching, currentEdge) && !matrixContainsElement(alteredBfsTree, neighbours[j])){
-                        alteredBfsTree[treeLevel].push_back(neighbours[j]);
-                        filaDeVertices.push(neighbours[j]);
-                    }
-
-                } else{
-
-                    currentEdge[0] = filaDeVertices.front();
-                    currentEdge[1] = neighbours[j];
+            while(!filaDeVertices.empty()){
                     
+                neighbours = getNeighbouringVertices(filaDeVertices.front());
+                
+                for(j = 0; j < (int)neighbours.size(); j++){
+                    
+                    if(nextEdgeShouldBeMatched){
 
-                    if(!matrixContainsPair(currentMatching, currentEdge) && !matrixContainsElement(alteredBfsTree, neighbours[j])){
+                        currentEdge[0] = filaDeVertices.front();
+                        currentEdge[1] = neighbours[j];
+
+                        if(matrixContainsPair(currentMatching, currentEdge) && !matrixContainsElement(alteredBfsTree, neighbours[j])){
+                            alteredBfsTree[treeLevel].push_back(neighbours[j]);
+                            filaSecundaria.push(neighbours[j]);
+                        }
+
+                    } else{
+
+                        currentEdge[0] = filaDeVertices.front();
+                        currentEdge[1] = neighbours[j];
                         
-                        alteredBfsTree[treeLevel].push_back(neighbours[j]);
-                        filaDeVertices.push(neighbours[j]);
 
-                        if(vectorContainsElement(freeVertices, neighbours[j])){
+                        if(!matrixContainsPair(currentMatching, currentEdge) && !matrixContainsElement(alteredBfsTree, neighbours[j])){
                             
-                            updateMatching(currentMatching, retrievePathFromTree(alteredBfsTree, neighbours[j]));
+                            alteredBfsTree[treeLevel].push_back(neighbours[j]);
+                            filaSecundaria.push(neighbours[j]);
 
-                            imprimirMatriz(alteredBfsTree);
+                            if(vectorContainsElement(freeVertices, neighbours[j])){
+                                
+                                updateMatching(currentMatching, retrievePathFromTree(alteredBfsTree, neighbours[j]));
 
-                            return 1;
+                                // imprimirMatriz(alteredBfsTree);
+
+                                return 1;
+                            }
                         }
                     }
                 }
-            }
 
-            alteredBfsTree[treeLevel].push_back(-1);
-            filaDeVertices.pop();
+                alteredBfsTree[treeLevel].push_back(-1);
+                filaDeVertices.pop();
 
-        } while(!filaDeVertices.empty());
+                }
+
+        nextEdgeShouldBeMatched = !nextEdgeShouldBeMatched;
+
+        } while(!filaSecundaria.empty());
     }
 
     return 0;
