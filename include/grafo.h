@@ -80,7 +80,7 @@ void removeVisitedElements(vector<int> &vetor, vector<vector<int>> matriz){
 
 int matrixContainsPair(vector<vector<int>> matrix, vector<int> pair){
     int i = 0;
-    for(i = 0; i < matrix.size(); i++){
+    for(i = 0; i < (int)matrix.size(); i++){
         if(matrix[i][0] == pair[0] && matrix[i][1] == pair[1])
             return 1;
         if(matrix[i][0] == pair[1] && matrix[i][1] == pair[0])
@@ -90,16 +90,17 @@ int matrixContainsPair(vector<vector<int>> matrix, vector<int> pair){
 }
 
 
-void updateMatching(vector<vector<int>> &currentMatching, vector<vector<int>> &augmentingPath){
+void updateMatching(vector<vector<int>> &currentMatching, vector<vector<int>> augmentingPath){
+    
     int i = 0;
-    for(i = 0; i < currentMatching.size(); i++){
+    for(i = 0; i < (int)currentMatching.size(); i++){
         if(matrixContainsPair(augmentingPath, currentMatching[i])){
             currentMatching.erase(currentMatching.begin() + i);
             i--;
         }
     }
 
-    for(i = 0; i < augmentingPath.size(); i+=2){
+    for(i = 0; i < (int)augmentingPath.size(); i+=2){
         currentMatching.push_back(augmentingPath[i]);
     }
 }
@@ -107,12 +108,13 @@ void updateMatching(vector<vector<int>> &currentMatching, vector<vector<int>> &a
 int findPartition(vector<int> vetor, int elemento){
     int i = 0;
     int count = 0;
-    for(i = 0; i < vetor.size(); i++){
+    for(i = 0; i < (int)vetor.size(); i++){
         if(vetor[i] == -1)
             count++;
         else if(vetor[i] == elemento)
             return count;
     }
+    return -1;
 }
 
 vector<int> filterVector(vector<int> vetor){
@@ -120,7 +122,7 @@ vector<int> filterVector(vector<int> vetor){
     vector<int> copia;
     copia = copyOfVector(vetor);
     int i;
-    for(i = 0; i < copia.size(); i++){
+    for(i = 0; i < (int)copia.size(); i++){
         if(copia[i] == -1){
             copia.erase(copia.begin() + i);
             i--;
@@ -133,19 +135,26 @@ vector<int> filterVector(vector<int> vetor){
 
 vector<vector<int>> retrievePathFromTree(vector<vector<int>> alteredBfsTree, int destino){
 
-    int treeDepht = alteredBfsTree.size();
-    int currentVertice = destino;
-    vector<vector<int>> augmentingPath;
-    int parentIndex;
-    int i;
-    vector<int> currentEdge;
+    
 
+    int treeDepht = (int)alteredBfsTree.size();
+    int currentVertice = destino;
+    int parentVertice;
+    vector<vector<int>> augmentingPath;
+    int i;
+    vector<int> currentEdge(2, 0);
+
+    
 
     for(i = treeDepht - 1; i > 0; i--){
+        parentVertice = filterVector(alteredBfsTree[i - 1])[findPartition(alteredBfsTree[i], currentVertice)];;
         currentEdge[0] = currentVertice;
-        currentEdge[1] = filterVector(alteredBfsTree[i - 1])[findPartition(alteredBfsTree[i], currentVertice)];
+        currentEdge[1] = parentVertice;
         augmentingPath.push_back(currentEdge);
+        currentVertice = parentVertice;
     }
+
+    return augmentingPath;
 }
 
 
@@ -188,7 +197,7 @@ Grafo::Grafo(int _numVertices){
 vector<int> Grafo::getNeighbouringVertices(int idVertice){
     vector<int> resposta;
     int i = 0;
-    for(i - 0; i < numVertices; i++){
+    for(i = 0; i < numVertices; i++){
         if(contemAresta(idVertice, i))
             resposta.push_back(i);
     }
@@ -200,8 +209,8 @@ vector<int> Grafo::getNeighbouringVertices(int idVertice){
 
 
 void Grafo::construirAresta(int origem, int destino){
-    matrizDeAdjacencia[origem - 1][destino - 1] = 1;
-    matrizDeAdjacencia[destino - 1][origem - 1] = 1;
+    matrizDeAdjacencia[origem][destino] = 1;
+    matrizDeAdjacencia[destino][origem] = 1;
 }
 
 int Grafo::contemAresta(int origem, int destino){
@@ -231,29 +240,36 @@ int Grafo::findAugmentingPath(vector<vector<int>> &currentMatching, vector<int> 
     int i = 0, j = 0;
     // int augmentingPathFound = 0;
     vector<vector<int>> alteredBfsTree;
-    int nextEdgeShouldBeMatched = 0;
+
+    bool nextEdgeShouldBeMatched = false;
     vector<int> neighbours;
-    queue<int> filaDeVertices;
+    queue<int> filaDeVertices, filaSecundaria;
     int treeLevel = 0;
 
-    vector<int> currentEdge;
+    vector<int> currentEdge(2, 0);
 
     if(freeVertices.size() <= 0)
         return 0;
 
 
-    for(i = 0; i < freeVertices.size(); i++){
+    for(i = 0; i < (int)freeVertices.size(); i++){
         
         treeLevel = 0;
         alteredBfsTree.clear();
+        alteredBfsTree.push_back(vector<int>(0, 0));
         filaDeVertices.push(freeVertices[i]);
         alteredBfsTree[0].push_back(freeVertices[i]);
 
         do{
             neighbours = getNeighbouringVertices(filaDeVertices.front());
+
             treeLevel++;
 
-            for(j = 0; j < neighbours.size(); j++){
+            nextEdgeShouldBeMatched = !nextEdgeShouldBeMatched;
+
+            alteredBfsTree.push_back(vector<int>(0, 0));
+
+            for(j = 0; j < (int)neighbours.size(); j++){
                 
                 if(nextEdgeShouldBeMatched){
 
@@ -269,6 +285,7 @@ int Grafo::findAugmentingPath(vector<vector<int>> &currentMatching, vector<int> 
 
                     currentEdge[0] = filaDeVertices.front();
                     currentEdge[1] = neighbours[j];
+                    
 
                     if(!matrixContainsPair(currentMatching, currentEdge) && !matrixContainsElement(alteredBfsTree, neighbours[j])){
                         
@@ -276,7 +293,11 @@ int Grafo::findAugmentingPath(vector<vector<int>> &currentMatching, vector<int> 
                         filaDeVertices.push(neighbours[j]);
 
                         if(vectorContainsElement(freeVertices, neighbours[j])){
+                            
                             updateMatching(currentMatching, retrievePathFromTree(alteredBfsTree, neighbours[j]));
+
+                            imprimirMatriz(alteredBfsTree);
+
                             return 1;
                         }
                     }
@@ -293,23 +314,28 @@ int Grafo::findAugmentingPath(vector<vector<int>> &currentMatching, vector<int> 
 }
 
 vector<vector<int>> Grafo::findMaximumMatching(){
+
     vector<int> freeVertices;
     int i;
     vector<vector<int>> matching;
 
-    for(i = 0; i< numVertices; i++){
+    for(i = 0; i < numVertices; i++){
         freeVertices.push_back(i);
     }
 
     int pathFound = 1;
 
     while(pathFound){
+
         pathFound = findAugmentingPath(matching, freeVertices);
+        
         freeVertices.clear();
+        
         for(i = 0; i< numVertices; i++){
             if(!matrixContainsElement(matching, i))
                 freeVertices.push_back(i);
         }
+
     }
 
     return matching;
@@ -317,7 +343,9 @@ vector<vector<int>> Grafo::findMaximumMatching(){
 
 
 int Grafo::getSizeOfMinVertexCover(){
-    return findMaximumMatching().size();
+    vector<vector<int>> result = findMaximumMatching();
+    // imprimirMatriz(result);
+    return result.size();
 }
 
 

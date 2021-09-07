@@ -10,26 +10,36 @@ using namespace std;
 
 int main(int argc, char** argv){
     
-    string tarefa = argv[0];
-    string filePath = argv[1];
-    
-    ifstream inputFile(filePath);
+    string tarefa(argv[1]);             
+    string filePath(argv[2]);
+      
+    // cout << "AQUI" << endl;  
+   
+    ifstream inputFile(filePath);                  
 
     int numVertices, numArestas;
-
-    numVertices << inputFile;
-    numArestas << inputFile;
-
-    int i, id, verticeOrigem, verticeDestino;
+       
+    inputFile >> numVertices;  
+    inputFile >> numArestas;  
+ 
+    int i, verticeOrigem, verticeDestino;           
 
     Grafo grafoVila(numVertices);
 
+    // cout << tarefa << endl;  
+
     for(i = 0; i < numArestas; i++){
-        verticeOrigem << inputFile;
-        verticeDestino << inputFile;
+        inputFile >> verticeOrigem;
+        inputFile >> verticeDestino;
+        // cout << verticeOrigem << " " << verticeDestino << endl;   
         grafoVila.construirAresta(verticeOrigem, verticeDestino);
     }
-    
+
+
+    if(tarefa == "tarefa1"){
+        cout << grafoVila.getSizeOfMinVertexCover() << endl;
+    }
+
 
 
 
