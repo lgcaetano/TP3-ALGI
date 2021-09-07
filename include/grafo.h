@@ -165,6 +165,8 @@ class Grafo{
 
         vector<vector<int>> findMaximumMatching();
 
+        int getSizeOfMinVertexCover();
+
     private:
         vector<int> getNeighbouringVertices(int idVertice);
         // void partitionGraph();
@@ -239,7 +241,6 @@ int Grafo::findAugmentingPath(vector<vector<int>> &currentMatching, vector<int> 
     if(freeVertices.size() <= 0)
         return 0;
 
-    int origem = freeVertices[0];
 
     for(i = 0; i < freeVertices.size(); i++){
         
@@ -282,6 +283,7 @@ int Grafo::findAugmentingPath(vector<vector<int>> &currentMatching, vector<int> 
                 }
             }
 
+            alteredBfsTree[treeLevel].push_back(-1);
             filaDeVertices.pop();
 
         } while(!filaDeVertices.empty());
@@ -291,9 +293,32 @@ int Grafo::findAugmentingPath(vector<vector<int>> &currentMatching, vector<int> 
 }
 
 vector<vector<int>> Grafo::findMaximumMatching(){
+    vector<int> freeVertices;
+    int i;
+    vector<vector<int>> matching;
 
+    for(i = 0; i< numVertices; i++){
+        freeVertices.push_back(i);
+    }
+
+    int pathFound = 1;
+
+    while(pathFound){
+        pathFound = findAugmentingPath(matching, freeVertices);
+        freeVertices.clear();
+        for(i = 0; i< numVertices; i++){
+            if(!matrixContainsElement(matching, i))
+                freeVertices.push_back(i);
+        }
+    }
+
+    return matching;
 }
 
+
+int Grafo::getSizeOfMinVertexCover(){
+    return findMaximumMatching().size();
+}
 
 
 #endif
