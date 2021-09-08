@@ -176,8 +176,11 @@ class Grafo{
 
         int getSizeOfMinVertexCover();
 
+        void vertexCoverEstimate();
+
     private:
         vector<int> getNeighbouringVertices(int idVertice);
+        vector<vector<int>> maximalMatchingHeuristics();
         // void partitionGraph();
         // vector<vector<int>> graphPartitions;
         int findAugmentingPath(vector<vector<int>> &currentMatching, vector<int> &freeVertices);    
@@ -351,11 +354,106 @@ vector<vector<int>> Grafo::findMaximumMatching(){
     return matching;
 }
 
+vector<vector<int>> Grafo::maximalMatchingHeuristics(){
+    
+    vector<vector<int>> arestas;
+    vector<vector<int>> matching;
+    vector<int> grauDosVertices(numVertices, 0);
+    vector<int> currentEdge(2, 0);
+    int grauTotal = 0;
+    int numArestas = 0;
+    int numArestasAdjacentes = 0;
+    int i, j;
+
+    for(i = 0; i < numVertices - 1; i++){
+        for(j = i + 1; j < numVertices; j++){
+
+
+            currentEdge[0] = i;
+            currentEdge[1] = j;
+
+            if(contemAresta(i, j)){
+                numArestas++;
+                grauDosVertices[i]++;
+                grauDosVertices[j]++;
+                arestas.push_back(currentEdge);
+            }
+
+        }
+    }
+
+
+    vector<int> grauDasArestas (numArestas, 0);
+    vector<int> arestaDeMaiorGrau(2, 0);
+    int maiorGrau = 0;
+    int indiceMaiorGrau = 0;
+
+    for(i = 0; i < numVertices; i++)
+        grauTotal += grauDosVertices[i];
+
+    
+
+    while(numArestasAdjacentes < numArestas){
+
+        maiorGrau = 0;
+        indiceMaiorGrau = 0;
+
+        fill(grauDasArestas.begin(), grauDasArestas.end(), 0);
+
+          
+
+        for(i = 0; i < (int)arestas.size(); i++){
+
+            grauDasArestas[i] = grauDosVertices[arestas[i][0]] + grauDosVertices[arestas[i][1]] - 1;
+  
+            if(grauDasArestas[i] > maiorGrau){
+                maiorGrau = grauDasArestas[i];
+                indiceMaiorGrau = i;
+            }
+
+        }
+
+        arestaDeMaiorGrau[0] = arestas[indiceMaiorGrau][0];
+        arestaDeMaiorGrau[1] = arestas[indiceMaiorGrau][1];
+
+        matching.push_back(arestaDeMaiorGrau);
+        numArestasAdjacentes += maiorGrau;
+
+        // imprimirMatriz(arestas);
+
+    
+
+        for(i = 0; i < (int)arestas.size(); i++){
+            if(vectorContainsElement(arestas[i], arestaDeMaiorGrau[0]) || vectorContainsElement(arestas[i], arestaDeMaiorGrau[1])){
+                arestas.erase(arestas.begin() + i);
+                i--;
+            }
+        }
+
+        // cout << "AQUI" << endl;
+    }
+
+  
+
+    return matching;
+}
+
+
 
 int Grafo::getSizeOfMinVertexCover(){
     vector<vector<int>> result = findMaximumMatching();
     // imprimirMatriz(result);
     return result.size();
+}
+
+void Grafo::vertexCoverEstimate(){
+    vector<vector<int>> solution = maximalMatchingHeuristics();
+    int i = 0;
+    cout << (int)solution.size() * 2 << endl;
+    for(i = 0; i < (int)solution.size(); i++){
+        cout << solution[i][0] << endl;
+        cout << solution[i][1] << endl;
+    }
 }
 
 

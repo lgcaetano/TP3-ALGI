@@ -34,19 +34,13 @@ int main(int argc, char** argv){
         // cout << verticeOrigem << " " << verticeDestino << endl;   
         grafoVila.construirAresta(verticeOrigem, verticeDestino);
     }
-
+                            
 
     if(tarefa == "tarefa1"){
         cout << grafoVila.getSizeOfMinVertexCover() << endl;
+    } else if(tarefa == "tarefa2"){
+        grafoVila.vertexCoverEstimate();
     }
-
-
-
-
-
-
-
-
-
-    return 1;
+     
+    return 1;       
 }
